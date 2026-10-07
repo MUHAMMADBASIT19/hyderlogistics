@@ -56,7 +56,10 @@
     // Backend Connection
     const data = Object.fromEntries(new FormData(form).entries());
 
-    if (status) status.textContent = 'Sending request...';
+    if (status) {
+      status.className = 'form-status loading';
+      status.textContent = 'Submitting your request... Please wait.';
+    }
 
     try {
       const response = await fetch('http://localhost:5000/api/quote', {
@@ -69,18 +72,28 @@
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok && result.success) {
         if (status) {
-          status.classList.add('ok');
-          status.textContent = 'Thank you. Your request has been received and we will reply shortly.';
+          status.className = 'form-status success ok';
+          status.textContent = 'Thank you! Your quote request has been sent successfully.';
         }
         form.reset();
+
+        setTimeout(() => {
+          if (status) status.textContent = '';
+        }, 5000);
       } else {
-        if (status) status.textContent = 'Failed to send request. Please try again.';
+        if (status) {
+          status.className = 'form-status error';
+          status.textContent = result.message || 'Failed to send request. Please try again.';
+        }
       }
     } catch (error) {
-      console.error('Error:', error);
-      if (status) status.textContent = 'Server connection error. Ensure your backend is running.';
+      console.error('Submission error:', error);
+      if (status) {
+        status.className = 'form-status error';
+        status.textContent = 'Server connection error. Ensure your backend is running.';
+      }
     }
   });
 
@@ -90,53 +103,3 @@
     yearEl.textContent = new Date().getFullYear();
   }
 })();
-const quoteForm = document.getElementById('quote-form');
-const responseMsg = document.getElementById('form-status');
-
-if (quoteForm) {
-  quoteForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Loading State
-    responseMsg.className = 'form-status loading';
-    responseMsg.textContent = 'Submitting your request... Please wait.';
-
-    const formData = {
-      name: document.getElementById('name').value,
-      email: document.getElementById('email').value,
-      phone: document.getElementById('phone').value,
-      service: document.getElementById('service').value,
-      origin: document.getElementById('origin').value,
-      dest: document.getElementById('dest').value,
-      message: document.getElementById('message').value,
-    };
-
-    try {
-      const response = await fetch('http://localhost:5000/api/quote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        responseMsg.className = 'form-status success';
-        responseMsg.textContent = 'Thank you! Your quote request has been sent successfully.';
-        quoteForm.reset();
-
-        setTimeout(() => {
-          responseMsg.textContent = '';
-        }, 5000);
-      } else {
-        throw new Error(result.message || 'Something went wrong.');
-      }
-    } catch (error) {
-      responseMsg.className = 'form-status error';
-      responseMsg.textContent = 'Failed to send request. Please try again.';
-      console.error('Submission error:', error);
-    }
-  });
-}
