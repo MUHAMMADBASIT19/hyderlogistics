@@ -62,7 +62,7 @@
     }
 
     try {
-      const response = await fetch('https://hyderlogistics-production.up.railway.app/api/quote', {
+      const response = await fetch('https://hyderlogistics.vercel.app/api/quote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
