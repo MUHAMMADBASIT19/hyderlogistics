@@ -1,14 +1,17 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// API Endpoints
+// Main Root Endpoint
+app.get('/', (req, res) => {
+    res.status(200).send("Hyder Logistics Backend is Running!");
+});
+
+// Quote Endpoints
 app.post('/api/quote', (req, res) => {
     console.log("Quote Request Received:", req.body);
     res.status(200).json({ 
@@ -21,14 +24,6 @@ app.get('/api/quote', (req, res) => {
     res.status(200).json({ 
         message: "Quote endpoint is active. Use POST to submit data." 
     });
-});
-
-// Serve static frontend files from root directory
-app.use(express.static(path.join(__dirname, '..')));
-
-// Fallback to index.html for root requests
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 module.exports = app;
